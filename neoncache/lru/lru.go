@@ -3,26 +3,34 @@ package lru
 import "container/list"
 
 // Cache is a LRU cache. It is not safe for concurrent access.
+/**
+cache 结构体，包含了各种成员变量信息，类似于java 成员变量域的集合
+*/
 type Cache struct {
-	maxBytes int64
-	nbytes   int64
-	ll       *list.List
-	cache    map[string]*list.Element
+	maxBytes int64                    // cache的最大容量
+	nbytes   int64                    // 当前容量
+	ll       *list.List               // cache关联的一个双向链表 list初始化可以list.New(), 或者list.List
+	cache    map[string]*list.Element // *list.Element是list中的一个节点，go中的list的每个元素get返回类型都是一个list.Element类型
 	// optional and executed when an entry is purged.
 	OnEvicted func(key string, value Value)
 }
 
+/**
+一个kv对定义为一个entry
+*/
 type entry struct {
 	key   string
 	value Value
 }
 
 // Value use Len to count how many bytes it takes
+// 用了记录占了多少字节，这里是一个接口，内部是Len()函数
 type Value interface {
 	Len() int
 }
 
 // New is the Constructor of Cache
+// New是cache的构造器
 func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
 	return &Cache{
 		maxBytes:  maxBytes,
